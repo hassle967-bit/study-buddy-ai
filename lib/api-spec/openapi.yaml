@@ -3,20 +3,24 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AI Study Assistant API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: todos
+    description: To-do list operations
+  - name: ai
+    description: AI-powered study features
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +28,149 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /todos:
+    get:
+      operationId: listTodos
+      tags: [todos]
+      summary: List all todos
+      responses:
+        "200":
+          description: List of todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Todo"
+    post:
+      operationId: createTodo
+      tags: [todos]
+      summary: Create a new todo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoInput"
+      responses:
+        "201":
+          description: Created todo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+
+  /todos/{id}:
+    patch:
+      operationId: updateTodo
+      tags: [todos]
+      summary: Update a todo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoUpdate"
+      responses:
+        "200":
+          description: Updated todo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteTodo
+      tags: [todos]
+      summary: Delete a todo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /todos/stats:
+    get:
+      operationId: getTodoStats
+      tags: [todos]
+      summary: Get todo statistics for the dashboard
+      responses:
+        "200":
+          description: Todo stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodoStats"
+
+  /ai/summarize:
+    post:
+      operationId: summarizeNotes
+      tags: [ai]
+      summary: Summarize notes using AI (SSE streaming)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SummarizeInput"
+      responses:
+        "200":
+          description: SSE stream of summary chunks
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /ai/quiz:
+    post:
+      operationId: generateQuiz
+      tags: [ai]
+      summary: Generate a quiz from notes using AI (SSE streaming)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizInput"
+      responses:
+        "200":
+          description: SSE stream of quiz questions
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /ai/study-plan:
+    post:
+      operationId: generateStudyPlan
+      tags: [ai]
+      summary: Generate a personalized study plan using AI (SSE streaming)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudyPlanInput"
+      responses:
+        "200":
+          description: SSE stream of study plan
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +181,108 @@ components:
       required:
         - status
 
+    Todo:
+      type: object
+      required: [id, title, completed, priority, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        completed:
+          type: boolean
+        priority:
+          type: string
+          enum: [low, medium, high]
+        subject:
+          type: ["string", "null"]
+        dueDate:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    TodoInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        priority:
+          type: string
+          enum: [low, medium, high]
+        subject:
+          type: string
+        dueDate:
+          type: string
+
+    TodoUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        completed:
+          type: boolean
+        priority:
+          type: string
+          enum: [low, medium, high]
+        subject:
+          type: string
+        dueDate:
+          type: ["string", "null"]
+
+    TodoStats:
+      type: object
+      required: [total, completed, pending, highPriority]
+      properties:
+        total:
+          type: integer
+        completed:
+          type: integer
+        pending:
+          type: integer
+        highPriority:
+          type: integer
+
+    SummarizeInput:
+      type: object
+      required: [notes]
+      properties:
+        notes:
+          type: string
+          minLength: 1
+        style:
+          type: string
+          enum: [concise, detailed, bullet-points]
+
+    QuizInput:
+      type: object
+      required: [notes]
+      properties:
+        notes:
+          type: string
+          minLength: 1
+        numQuestions:
+          type: integer
+          minimum: 1
+          maximum: 20
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+
+    StudyPlanInput:
+      type: object
+      required: [subject, examDate]
+      properties:
+        subject:
+          type: string
+          minLength: 1
+        examDate:
+          type: string
+        hoursPerDay:
+          type: integer
+          minimum: 1
+          maximum: 12
+        topics:
+          type: string
