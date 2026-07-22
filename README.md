@@ -39,4 +39,7 @@ System Prompt: "You are Athena, a Study Assistant. Summarize user notes into 5 k
 1. Clone this repo
 2. npm install
 3. Add OPENAI_API_KEY in .env file
-4. npm run dev
+4. npm run dev## Screenshots
+![Dashboard](3edf5505c21387a4281...)
+![Summarize](Screenshot_20260722_...)
+![Quiz](doosri_file_ka_naa
