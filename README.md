@@ -22,4 +22,21 @@ Study Buddy AI is an AI-powered learning assistant designed to help students wit
 4. Start using Study Buddy AI.
 
 ## Author
-Hassan Ali
+Hassan Ali## Live URL
+https://study-buddy-ai.hassle967.repl.co
+
+## AI Feature
+Model: OpenAI GPT-4o-mini
+What it does: Notes ko 5 bullet points me summarize karta hai aur notes se 10 MCQs bana deta hai.
+System Prompt: "You are Athena, a Study Assistant. Summarize user notes into 5 key points. Create 10 multiple choice questions with correct answers."
+
+## Screenshots
+![Dashboard](dashboard.png)
+![Summarize](summarize.png)
+![Quiz](quiz.png)
+
+## How to Run
+1. Clone this repo
+2. npm install
+3. Add OPENAI_API_KEY in .env file
+4. npm run dev
